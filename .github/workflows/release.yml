@@ -71,6 +71,12 @@ jobs:
           echo "APPLE_API_KEY=$KEY_PATH" >> "$GITHUB_ENV"
 
       # -------- test + build + publish --------
+      # Rebuild native modules against Node ABI for vitest; Forge will
+      # re-rebuild for Electron ABI during publish via its auto-unpack-natives plugin.
+      - name: Rebuild native modules for Node (test ABI)
+        shell: bash
+        run: npm rebuild better-sqlite3
+
       - name: Run tests
         run: npm test
 
