@@ -32,10 +32,10 @@ jobs:
 
       - name: Verify tag matches package.json version        # D-24
         shell: bash
-          run: node scripts/verify-tag.mjs
+        run: node scripts/verify-tag.mjs
 
       - name: Install dependencies
-          run: npm ci
+        run: npm ci
 
       # -------- macOS-only: cert import + ASC key decode --------
       - name: Import Developer ID certificate
@@ -72,11 +72,11 @@ jobs:
 
       # -------- test + build + publish --------
       - name: Run tests
-          run: npm test
+        run: npm test
 
       - name: Build universal macOS (if darwin)
         if: matrix.os == 'macos-14'
-          env:
+        env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           APPLE_API_KEY: ${{ env.APPLE_API_KEY }}
           APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
@@ -86,20 +86,20 @@ jobs:
 
       - name: Build Windows (if win32)
         if: matrix.os == 'windows-latest'
-          env:
+        env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npx electron-forge publish --arch=x64 --platform=win32
 
       # -------- generate + upload electron-updater manifest --------
       - name: Generate and upload latest-mac.yml
         if: matrix.os == 'macos-14'
-          env:
+        env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: node scripts/generate-update-manifest.mjs darwin
 
       - name: Generate and upload latest.yml
         if: matrix.os == 'windows-latest'
-          env:
+        env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: node scripts/generate-update-manifest.mjs win32
 
