@@ -80,6 +80,12 @@ jobs:
       - name: Run tests
         run: npm test
 
+      # Build the React-based player page into assets/player/.
+      # Forge's packagerConfig.extraResource references this directory,
+      # so it must exist before 'electron-forge publish' runs.
+      - name: Build player page
+        run: npm run build:player
+
       - name: Build universal macOS (if darwin)
         if: matrix.os == 'macos-14'
         env:
