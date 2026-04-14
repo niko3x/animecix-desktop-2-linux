@@ -107,14 +107,20 @@ jobs:
       - name: Build player page
         run: npm run build:player
 
-      - name: Make macOS (universal, signed, notarize gated by SKIP_NOTARIZE)
+      # TEMP: debugging better-sqlite3 being missing from the bundle.
+      # Switched from --arch=universal to --arch=arm64 to isolate the issue
+      # (plugin-vite + auto-unpack-natives + universal is a known edge case).
+      # Once arm64-only build ships better-sqlite3 correctly, flip back to
+      # --arch=universal and we'll know the issue is the universal stitcher.
+      - name: Make macOS (arm64, signed, notarize gated by SKIP_NOTARIZE) — DEBUG
         if: matrix.os == 'macos-14'
         env:
           APPLE_API_KEY: ${{ env.APPLE_API_KEY }}
           APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
           APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
-        run: npx electron-forge make --arch=universal --platform=darwin
+          DEBUG: '@electron/*,electron-forge:*,@electron-forge/*'
+        run: npx electron-forge make --arch=arm64 --platform=darwin
 
       - name: Make Windows (x64 squirrel)
         if: matrix.os == 'windows-latest'
