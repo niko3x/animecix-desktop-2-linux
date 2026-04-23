@@ -91,8 +91,11 @@ export function createWindow(storage: StorageService): BrowserWindow {
     win.show();
   });
 
-  // Load animecix.tv (use localhost:4200 for local dev)
-  void win.loadURL('http://localhost:4200');
+  // Dev: load local Angular dev server; Production: load animecix.tv
+  const startUrl = app.isPackaged
+    ? 'https://animecix.tv'
+    : 'http://localhost:4200';
+  void win.loadURL(startUrl);
 
   // Persist bounds on resize/move — debounced, skip while maximized
   const saveBounds = debounce(() => {
