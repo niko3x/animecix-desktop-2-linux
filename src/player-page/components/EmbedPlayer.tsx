@@ -258,6 +258,9 @@ export function EmbedPlayer() {
         onEnded={onEnded}
         onPlay={onPlay}
         onPause={onPause}
+        onFullscreenChange={(isFullscreen: boolean) => {
+          postToParent(isFullscreen ? 'enterFullscreen' : 'exitFullscreen');
+        }}
         style={{ height: '100vh' }}
       >
         <MediaProvider>
