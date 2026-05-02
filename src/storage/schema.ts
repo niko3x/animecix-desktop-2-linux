@@ -50,4 +50,16 @@ export const INIT_SCHEMA = `
     last_accessed INTEGER NOT NULL DEFAULT (unixepoch()),
     created_at    INTEGER NOT NULL DEFAULT (unixepoch())
   );
+  CREATE TABLE IF NOT EXISTS episode_metadata (
+    episode_id     TEXT PRIMARY KEY NOT NULL,
+    anime_title    TEXT NOT NULL,
+    season_number  TEXT NOT NULL DEFAULT '',
+    episode_number TEXT NOT NULL DEFAULT '',
+    translator     TEXT NOT NULL DEFAULT '',
+    poster_url     TEXT NOT NULL DEFAULT '',
+    poster_path    TEXT NOT NULL DEFAULT '',
+    source         TEXT NOT NULL DEFAULT 'download',
+    created_at     INTEGER NOT NULL DEFAULT (unixepoch())
+  );
+  CREATE INDEX IF NOT EXISTS idx_episode_metadata_anime ON episode_metadata (anime_title);
 `;

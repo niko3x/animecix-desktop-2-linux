@@ -42,6 +42,25 @@ export interface SkipMetaData {
   [key: string]: { from: number; to: number };
 }
 
+// Library types (Phase 7)
+export interface LibraryAnime {
+  animeTitle: string;
+  posterPath: string;
+  episodeCount: number;
+}
+
+export interface LibraryEpisode {
+  episodeId: string;
+  animeTitle: string;
+  seasonNumber: string;
+  episodeNumber: string;
+  translator: string;
+  source: 'download' | 'cache';
+  sizeBytes: number;
+  createdAt: number;
+  offlineUrl: string;
+}
+
 export interface AnimecixAPI {
   // Window controls — invoke IPC calls to main process
   minimize: () => Promise<void>;
@@ -88,7 +107,11 @@ export interface AnimecixAPI {
   setIdle: () => void;
 
   // --- Downloads (Phase 3) ---
-  downloadVideo: (episodeId: string, url: string, title: string, subUrls: { language: string; url: string }[]) => Promise<void>;
+  downloadVideo: (
+    episodeId: string, url: string, title: string,
+    subUrls: { language: string; url: string }[],
+    metadata?: { animeTitle: string; seasonNumber?: string; episodeNumber?: string; translator?: string; posterUrl?: string; }
+  ) => Promise<void>;
   pauseDownload: (id: string) => Promise<void>;
   resumeDownload: (id: string) => Promise<void>;
   cancelDownload: (id: string) => Promise<void>;
@@ -97,7 +120,11 @@ export interface AnimecixAPI {
   onDownloadComplete: (cb: (item: { id: string; episodeId: string; title: string }) => void) => () => void;
 
   // --- Cache (Phase 3) ---
-  cacheEpisode: (episodeId: string, videoUrl: string, isHls: boolean, subs: { language: string; url: string }[]) => Promise<void>;
+  cacheEpisode: (
+    episodeId: string, videoUrl: string, isHls: boolean,
+    subs: { language: string; url: string }[],
+    metadata?: { animeTitle: string; seasonNumber?: string; episodeNumber?: string; translator?: string; posterUrl?: string; }
+  ) => Promise<void>;
   isAvailableOffline: (episodeId: string) => Promise<boolean>;
   getOfflineUrl: (episodeId: string) => Promise<string | null>;
 
@@ -106,6 +133,13 @@ export interface AnimecixAPI {
   deleteDownload: (episodeId: string) => Promise<void>;
   deleteCache: (episodeId: string) => Promise<void>;
   setCacheMaxBytes: (maxBytes: number) => Promise<void>;
+
+  // --- Library (Phase 7) ---
+  getLibraryAnimes: () => Promise<LibraryAnime[]>;
+  getLibraryEpisodes: (animeTitle: string) => Promise<LibraryEpisode[]>;
+  showLibrary: () => Promise<void>;
+  hideLibrary: () => Promise<void>;
+  playOfflineEpisode: (episodeId: string) => Promise<void>;
 }
 
 declare global {

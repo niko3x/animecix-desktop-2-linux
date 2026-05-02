@@ -294,6 +294,83 @@ export class StorageService {
     return evicted;
   }
 
+  // ── Episode metadata methods (Phase 7 — Library) ────────────────────────────
+
+  upsertEpisodeMetadata(meta: {
+    episodeId: string;
+    animeTitle: string;
+    seasonNumber: string;
+    episodeNumber: string;
+    translator: string;
+    posterUrl: string;
+    posterPath: string;
+    source: 'download' | 'cache';
+  }): void {
+    this.db
+      .prepare(
+        `INSERT OR REPLACE INTO episode_metadata
+         (episode_id, anime_title, season_number, episode_number, translator, poster_url, poster_path, source, created_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, unixepoch())`
+      )
+      .run(
+        meta.episodeId, meta.animeTitle, meta.seasonNumber,
+        meta.episodeNumber, meta.translator, meta.posterUrl,
+        meta.posterPath, meta.source
+      );
+  }
+
+  getLibraryAnimes(): { animeTitle: string; posterPath: string; episodeCount: number }[] {
+    const rows = this.db
+      .prepare(
+        `SELECT anime_title, MAX(poster_path) as poster_path, COUNT(*) as episode_count
+         FROM episode_metadata
+         GROUP BY anime_title
+         ORDER BY anime_title ASC`
+      )
+      .all() as { anime_title: string; poster_path: string; episode_count: number }[];
+    return rows.map((r) => ({
+      animeTitle: r.anime_title,
+      posterPath: r.poster_path,
+      episodeCount: r.episode_count,
+    }));
+  }
+
+  getLibraryEpisodes(animeTitle: string): {
+    episodeId: string;
+    animeTitle: string;
+    seasonNumber: string;
+    episodeNumber: string;
+    translator: string;
+    source: 'download' | 'cache';
+    sizeBytes: number;
+    createdAt: number;
+    offlineUrl: string;
+  }[] {
+    const rows = this.db
+      .prepare(
+        `SELECT em.episode_id, em.anime_title, em.season_number, em.episode_number,
+                em.translator, em.source, em.created_at,
+                COALESCE(dq.total_bytes, ci.size_bytes, 0) as size_bytes
+         FROM episode_metadata em
+         LEFT JOIN download_queue dq ON dq.episode_id = em.episode_id AND dq.status = 'completed'
+         LEFT JOIN cache_index ci ON ci.episode_id = em.episode_id
+         WHERE em.anime_title = ?
+         ORDER BY em.season_number ASC, CAST(em.episode_number AS INTEGER) ASC`
+      )
+      .all(animeTitle) as Record<string, unknown>[];
+    return rows.map((r) => ({
+      episodeId: r['episode_id'] as string,
+      animeTitle: r['anime_title'] as string,
+      seasonNumber: r['season_number'] as string,
+      episodeNumber: r['episode_number'] as string,
+      translator: r['translator'] as string,
+      source: r['source'] as 'download' | 'cache',
+      sizeBytes: r['size_bytes'] as number,
+      createdAt: r['created_at'] as number,
+      offlineUrl: `animecix-offline://episode/${r['episode_id']}/video`,
+    }));
+  }
+
   close(): void {
     this.db.close();
   }
