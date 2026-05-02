@@ -54,7 +54,9 @@ export function LibraryApp() {
       background: 'var(--bg-primary)', minHeight: '100vh',
       display: 'flex', flexDirection: 'column',
     }}>
-      {!isOnline && <div className="drag-region" />}
+      {!isOnline && <div className="drag-region" style={{
+        position: 'fixed', top: 0, left: 0, right: 0, height: 48, zIndex: 999,
+      }} />}
       {isOnline && <InternetBanner onGoToWebsite={handleGoToWebsite} />}
 
       <div style={{
