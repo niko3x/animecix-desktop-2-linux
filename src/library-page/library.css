@@ -30,6 +30,22 @@ body {
   min-height: 100vh;
 }
 
+.drag-region {
+  -webkit-app-region: drag;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 48px;
+  z-index: 999;
+  pointer-events: none;
+}
+
+.no-drag {
+  -webkit-app-region: no-drag;
+  pointer-events: auto;
+}
+
 button {
   cursor: pointer;
   border: none;

@@ -4,6 +4,8 @@ interface Props {
   onGoToWebsite: () => void;
 }
 
+const isMac = navigator.platform.startsWith('Mac');
+
 export function InternetBanner({ onGoToWebsite }: Props) {
   return (
     <div style={{
@@ -11,7 +13,10 @@ export function InternetBanner({ onGoToWebsite }: Props) {
       height: 48, background: '#1f2937',
       borderBottom: '1px solid rgba(255,255,255,0.08)',
       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-      padding: '0 16px', color: '#e5e7eb',
+      paddingLeft: isMac ? 80 : 16, paddingRight: 16,
+      color: '#e5e7eb',
+      // @ts-expect-error webkit property
+      WebkitAppRegion: 'drag',
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -20,7 +25,7 @@ export function InternetBanner({ onGoToWebsite }: Props) {
           <path d="M8.53 16.11a6 6 0 0 1 6.95 0" />
           <circle cx="12" cy="20" r="1" fill="currentColor" />
         </svg>
-        <span style={{ fontSize: 14, fontWeight: 400 }}>Internet baglantisi mevcut</span>
+        <span style={{ fontSize: 14, fontWeight: 400 }}>İnternet bağlantısı mevcut</span>
       </div>
       <button
         onClick={onGoToWebsite}
@@ -28,9 +33,11 @@ export function InternetBanner({ onGoToWebsite }: Props) {
           background: 'var(--accent)', color: '#fff',
           fontSize: 13, fontWeight: 600, lineHeight: '1.4',
           padding: '6px 14px', borderRadius: 4,
+          // @ts-expect-error webkit property
+          WebkitAppRegion: 'no-drag',
         }}
       >
-        Siteye Don
+        Siteye Dön
       </button>
     </div>
   );

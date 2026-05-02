@@ -21,7 +21,7 @@ export function EpisodeRow({ episode }: Props) {
 
   const label = episode.seasonNumber
     ? `S${episode.seasonNumber}E${episode.episodeNumber}`
-    : `Bolum ${episode.episodeNumber}`;
+    : `Bölüm ${episode.episodeNumber}`;
 
   return (
     <div
@@ -68,7 +68,7 @@ export function EpisodeRow({ episode }: Props) {
           marginLeft: 8,
         }}
       >
-        Izle
+        İzle
       </button>
     </div>
   );

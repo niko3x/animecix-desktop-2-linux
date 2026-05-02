@@ -27,7 +27,7 @@ export function TypeBadge({ source }: Props) {
           <polyline points="12 6 12 12 16 14" />
         </svg>
       )}
-      {isDownload ? 'Indirildi' : 'Onbellek'}
+      {isDownload ? 'İndirildi' : 'Önbellek'}
     </span>
   );
 }

@@ -32,7 +32,7 @@ export function LibraryApp() {
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         height: '100vh', background: 'var(--bg-primary)',
       }}>
-        <div className="spinner" aria-label="Yukleniyor" />
+        <div className="spinner" aria-label="Yükleniyor" />
       </div>
     );
   }
@@ -44,7 +44,7 @@ export function LibraryApp() {
         justifyContent: 'center', height: '100vh', background: 'var(--bg-primary)',
         color: 'var(--text-muted)', fontSize: 14, gap: 8,
       }}>
-        <span>Kutuphane yuklenemedi. Uygulamayi yeniden baslatin.</span>
+        <span>Kütüphane yüklenemedi. Uygulamayı yeniden başlatın.</span>
       </div>
     );
   }
@@ -54,11 +54,12 @@ export function LibraryApp() {
       background: 'var(--bg-primary)', minHeight: '100vh',
       display: 'flex', flexDirection: 'column',
     }}>
+      {!isOnline && <div className="drag-region" />}
       {isOnline && <InternetBanner onGoToWebsite={handleGoToWebsite} />}
 
       <div style={{
         padding: '24px 32px 16px',
-        paddingTop: isOnline ? '72px' : '24px',
+        paddingTop: isOnline ? '72px' : '56px',
       }}>
         <SearchBar value={searchQuery} onChange={setSearchQuery} />
       </div>

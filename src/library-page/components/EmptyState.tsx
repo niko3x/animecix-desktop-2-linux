@@ -22,12 +22,12 @@ export function EmptyState({ hasSearch }: Props) {
       </svg>
 
       <div style={{ fontSize: 20, fontWeight: 600, lineHeight: '1.2', color: 'var(--text-primary)', marginBottom: 8 }}>
-        {hasSearch ? 'Sonuc bulunamadi' : 'Kutuphaneniz bos'}
+        {hasSearch ? 'Sonuç bulunamadı' : 'Kütüphaneniz boş'}
       </div>
       <div style={{ fontSize: 14, fontWeight: 400, lineHeight: '1.5', maxWidth: 320 }}>
         {hasSearch
-          ? 'Arama teriminizi degistirmeyi deneyin.'
-          : 'Indirdiginiz veya izlediginiz bolumler burada gorunecek.'}
+          ? 'Arama teriminizi değiştirmeyi deneyin.'
+          : 'İndirdiğiniz veya izlediğiniz bölümler burada görünecek.'}
       </div>
     </div>
   );

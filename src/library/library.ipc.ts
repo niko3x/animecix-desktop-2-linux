@@ -38,6 +38,12 @@ export function registerLibraryIpc(
 
   ipcMain.handle('library:hide', async () => {
     libraryManager.hide();
+    if (!mainWindow.isDestroyed()) {
+      const currentUrl = mainWindow.webContents.getURL();
+      if (!currentUrl.startsWith('https://')) {
+        void mainWindow.loadURL('https://animecix.tv');
+      }
+    }
   });
 
   ipcMain.handle('library:playEpisode', async (_event, episodeId: string) => {

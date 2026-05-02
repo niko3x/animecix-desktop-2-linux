@@ -81,7 +81,7 @@ export function AnimePosterCard({ anime, isExpanded, onClick }: Props) {
         fontSize: 13, fontWeight: 600, lineHeight: '1.4',
         color: 'var(--text-muted)',
       }}>
-        {anime.episodeCount} bolum
+        {anime.episodeCount} bölüm
       </div>
     </div>
   );
