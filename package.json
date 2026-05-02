@@ -26,6 +26,7 @@
     "lint": "eslint --ext .ts,.tsx .",
     "test": "vitest run --reporter=dot",
     "build:player": "vite build --config vite.player.config.mts",
+    "build:library": "vite build --config vite.library.config.mts",
     "postinstall": "electron-rebuild -f -w better-sqlite3",
     "verify-tag": "node scripts/verify-tag.mjs",
     "generate-update-manifest": "node scripts/generate-update-manifest.mjs"

@@ -21,7 +21,7 @@ const config: ForgeConfig = {
     appBundleId: 'com.onmuapps.animecix',              // D-26
     asar: true,
     icon: 'assets/icon',                                // Forge appends .icns/.ico per platform
-    extraResource: ['assets/player', 'resources/app-update.yml'],
+    extraResource: ['assets/player', 'assets/library', 'resources/app-update.yml'],
     osxUniversal: {
       x64ArchFiles: '**/*.node',                        // D-05 + Pitfall 3 — prevent double-lipo of better-sqlite3
     },
