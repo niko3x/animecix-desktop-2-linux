@@ -9,7 +9,7 @@
  *   library:getEpisodes  -- returns episodes for a specific anime
  *   library:show         -- shows the library BrowserView overlay
  *   library:hide         -- hides the library BrowserView overlay
- *   library:playEpisode  -- hides library AND sends play-offline event to mainWindow
+ *   library:playEpisode  -- hides library, navigates mainWindow to tau-player, sends initVideoData
  */
 
 import { ipcMain, BrowserWindow, net, app } from 'electron';
@@ -41,21 +41,72 @@ export function registerLibraryIpc(
   });
 
   ipcMain.handle('library:playEpisode', async (_event, episodeId: string) => {
-    // CRITICAL: Hide library BrowserView AND trigger offline playback.
-    // Step 1: Hide the library overlay so the main window is visible
+    // Step 1: Hide the library BrowserView overlay
     libraryManager.hide();
 
-    // Step 2: Send the offline episode info to the main window's renderer.
-    // Phase 5's animecix-offline:// protocol handler serves the video file.
-    // The renderer (Angular website or library page) will handle opening
-    // the player with this offline source.
+    // Step 2: Build offline video and subtitle URLs
     const offlineUrl = `animecix-offline://episode/${episodeId}/video`;
 
+    // Gather subtitle languages from download or cache metadata
+    const subtitles: { language: string; url: string; name: string; id: number }[] = [];
+    const dl = storage.getDownloadById(episodeId);
+    if (dl && dl.status === 'completed' && dl.subUrls) {
+      for (const sub of dl.subUrls) {
+        subtitles.push({
+          language: sub.language,
+          url: `animecix-offline://episode/${episodeId}/sub/${sub.language}`,
+          name: sub.language,
+          id: 0,
+        });
+      }
+    } else {
+      const cached = storage.getCacheEntry(episodeId);
+      if (cached && cached.subPaths) {
+        try {
+          const subPaths = JSON.parse(cached.subPaths) as { language: string; path: string }[];
+          for (const sub of subPaths) {
+            subtitles.push({
+              language: sub.language,
+              url: `animecix-offline://episode/${episodeId}/sub/${sub.language}`,
+              name: sub.language,
+              id: 0,
+            });
+          }
+        } catch {
+          // Malformed subPaths -- play without subtitles
+        }
+      }
+    }
+
+    // Step 3: Navigate mainWindow to tau-player with offline path.
+    // tau-player:// is a local protocol -- works without network.
+    // The "/embed/offline" path is a dummy -- the player will receive real
+    // data via initVideoData message below (same pattern as Angular's loadOfflineVideo).
     if (!mainWindow.isDestroyed()) {
-      mainWindow.webContents.send('library:play-offline', {
-        episodeId,
-        offlineUrl,
+      await mainWindow.loadURL('tau-player://bundle/embed/offline');
+
+      // Step 4: After page load, send initVideoData to the player.
+      // The player's useParentMessages hook listens for window 'message' events.
+      // executeJavaScript runs in the renderer context where window.postMessage works.
+      // This mirrors the Angular website's loadOfflineVideo postMessage pattern exactly.
+      const payload = JSON.stringify({
+        action: 'initVideoData',
+        video: {
+          _id: episodeId,
+          urls: [{ label: 'offline', url: offlineUrl, size: 0 }],
+          subs: subtitles,
+          duration: 0,
+          title_id: '',
+          season_number: '',
+          episode_number: '',
+          translator: '',
+        },
+        skipMeta: null,
+        source: { type: 'local', url: offlineUrl },
       });
+      await mainWindow.webContents.executeJavaScript(
+        `window.postMessage(${payload}, '*');`,
+      );
       log.info(`[library] Playing offline episode: ${episodeId}`);
     }
   });
