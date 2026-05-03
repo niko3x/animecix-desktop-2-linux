@@ -41,8 +41,7 @@ export function registerLibraryIpc(
   });
 
   ipcMain.handle('library:playEpisode', async (_event, episodeId: string) => {
-    // Step 1: Hide the library BrowserView overlay
-    libraryManager.hide();
+    libraryManager.deactivate();
 
     // Step 2: Build offline video and subtitle URLs
     const offlineUrl = `animecix-offline://episode/${episodeId}/video`;

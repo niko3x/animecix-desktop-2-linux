@@ -31,6 +31,10 @@ export class LibraryManager {
     return this.mainWindow;
   }
 
+  deactivate(): void {
+    this.active = false;
+  }
+
   dispose(): void {
     this.active = false;
   }
