@@ -108,11 +108,6 @@ export class DownloadQueue extends EventEmitter {
   cancel(id: string): void {
     const item = this.storage.getDownloadById(id);
 
-    // Completed downloads must not be removed from the queue — the offline
-    // protocol resolves video paths via download_queue. Use the library
-    // delete button to remove completed content (it cleans everything).
-    if (item?.status === 'completed') return;
-
     if (this.activeDownloadId === id && this.activeDownloader) {
       this.activeDownloader.pause(); // aborts requests
       this.activeDownloader = null;

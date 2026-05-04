@@ -37,6 +37,29 @@ export class StorageService {
       }
       this.db.prepare("UPDATE settings SET value = '1' WHERE key = '_migration_ep_meta_size'").run();
     }
+
+    // Add video_path + sub_paths columns to episode_metadata (library decoupling)
+    const videoPathMigrated = this.db
+      .prepare("SELECT value FROM settings WHERE key = '_migration_ep_meta_video_path'")
+      .get() as { value: string } | undefined;
+    if (videoPathMigrated && videoPathMigrated.value === '0') {
+      try {
+        this.db.exec("ALTER TABLE episode_metadata ADD COLUMN video_path TEXT NOT NULL DEFAULT ''");
+      } catch { /* Column already exists */ }
+      try {
+        this.db.exec("ALTER TABLE episode_metadata ADD COLUMN sub_paths TEXT NOT NULL DEFAULT '[]'");
+      } catch { /* Column already exists */ }
+      // Backfill from existing completed downloads
+      this.db.exec(`
+        UPDATE episode_metadata SET
+          video_path = COALESCE((SELECT output_path FROM download_queue WHERE download_queue.id = episode_metadata.episode_id AND download_queue.status = 'completed'), ''),
+          sub_paths = COALESCE((SELECT sub_urls FROM download_queue WHERE download_queue.id = episode_metadata.episode_id AND download_queue.status = 'completed'), '[]')
+        WHERE video_path = '' AND EXISTS (
+          SELECT 1 FROM download_queue WHERE download_queue.id = episode_metadata.episode_id AND download_queue.status = 'completed'
+        )
+      `);
+      this.db.prepare("UPDATE settings SET value = '1' WHERE key = '_migration_ep_meta_video_path'").run();
+    }
   }
 
   getSetting(key: string): string | null {
@@ -281,6 +304,20 @@ export class StorageService {
     this.db.prepare(`UPDATE episode_metadata SET size_bytes = ? WHERE episode_id = ?`).run(sizeBytes, episodeId);
   }
 
+  updateEpisodeMetadataVideoPath(episodeId: string, videoPath: string, subPaths: string): void {
+    this.db
+      .prepare(`UPDATE episode_metadata SET video_path = ?, sub_paths = ? WHERE episode_id = ?`)
+      .run(videoPath, subPaths, episodeId);
+  }
+
+  getEpisodeVideoPaths(episodeId: string): { videoPath: string; subPaths: string } | null {
+    const row = this.db
+      .prepare('SELECT video_path, sub_paths FROM episode_metadata WHERE episode_id = ?')
+      .get(episodeId) as { video_path: string; sub_paths: string } | undefined;
+    if (!row || !row.video_path) return null;
+    return { videoPath: row.video_path, subPaths: row.sub_paths };
+  }
+
   getCacheStats(): { totalBytes: number; episodes: { episodeId: string; sizeBytes: number }[] } {
     const totalRow = this.db
       .prepare(`SELECT COALESCE(SUM(size_bytes), 0) as total FROM cache_index`)
@@ -330,17 +367,20 @@ export class StorageService {
     posterPath: string;
     source: 'download' | 'cache';
     sizeBytes?: number;
+    videoPath?: string;
+    subPaths?: string;
   }): void {
     this.db
       .prepare(
         `INSERT OR REPLACE INTO episode_metadata
-         (episode_id, anime_title, season_number, episode_number, translator, poster_url, poster_path, source, size_bytes, created_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, unixepoch())`
+         (episode_id, anime_title, season_number, episode_number, translator, poster_url, poster_path, source, size_bytes, video_path, sub_paths, created_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, unixepoch())`
       )
       .run(
         meta.episodeId, meta.animeTitle, meta.seasonNumber,
         meta.episodeNumber, meta.translator, meta.posterUrl,
-        meta.posterPath, meta.source, meta.sizeBytes ?? 0
+        meta.posterPath, meta.source, meta.sizeBytes ?? 0,
+        meta.videoPath ?? '', meta.subPaths ?? '[]'
       );
   }
 

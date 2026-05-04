@@ -58,10 +58,20 @@ export function registerDownloadIpc(
   });
 
   queue.on('downloadComplete', (item: { id: string; episodeId: string; title: string }) => {
-    // Update episode_metadata with final size so library is independent of download_queue
     const dl = storage.getDownloadById(item.id);
     if (dl) {
       storage.updateEpisodeMetadataSize(item.episodeId, dl.totalBytes);
+      // Store video path and subtitle paths in episode_metadata so offline
+      // playback no longer depends on the download_queue record
+      const subPathEntries = dl.subUrls.map((sub) => ({
+        language: sub.language,
+        path: dl.outputPath.replace(/\.mp4$/, '') + '.' + sub.language + '.ass',
+      }));
+      storage.updateEpisodeMetadataVideoPath(
+        item.episodeId,
+        dl.outputPath,
+        JSON.stringify(subPathEntries),
+      );
     }
 
     mainWindow.webContents.send('download:complete', {
@@ -109,7 +119,9 @@ export function registerDownloadIpc(
 
   // --- Offline availability ---
   ipcMain.handle('offline:isAvailable', async (_event, episodeId: string) => {
-    // Check downloads first (completed), then cache
+    // Priority: episode_metadata (decoupled) → download_queue (legacy) → cache
+    const meta = storage.getEpisodeVideoPaths(episodeId);
+    if (meta) return true;
     const dl = storage.getDownloadById(episodeId);
     if (dl && dl.status === 'completed') return true;
     const cached = storage.getCacheEntry(episodeId);
@@ -117,6 +129,8 @@ export function registerDownloadIpc(
   });
 
   ipcMain.handle('offline:getUrl', async (_event, episodeId: string) => {
+    const meta = storage.getEpisodeVideoPaths(episodeId);
+    if (meta) return `animecix-offline://episode/${episodeId}/video`;
     const dl = storage.getDownloadById(episodeId);
     if (dl && dl.status === 'completed') {
       return `animecix-offline://episode/${episodeId}/video`;
@@ -156,15 +170,28 @@ export function registerDownloadIpc(
   });
 
   ipcMain.handle('storage:deleteDownload', async (_event, episodeId: string) => {
-    // Validate episodeId exists in storage before constructing any paths (T-03-14)
+    // Resolve file paths from episode_metadata first (authoritative),
+    // falling back to download_queue for pre-migration data (T-03-14)
+    const meta = storage.getEpisodeVideoPaths(episodeId);
     const dl = storage.getDownloadById(episodeId);
-    if (!dl) return;
+    const videoPath = meta?.videoPath || dl?.outputPath;
+    if (!videoPath) return;
+
     // Delete main video file
-    try { fs.unlinkSync(dl.outputPath); } catch { /* ignore */ }
+    try { fs.unlinkSync(videoPath); } catch { /* ignore */ }
     // Delete subtitle files
-    const dir = path.dirname(dl.outputPath);
-    for (const sub of dl.subUrls) {
-      try { fs.unlinkSync(path.join(dir, path.basename(dl.outputPath, '.mp4') + '.' + sub.language + '.ass')); } catch { /* ignore */ }
+    if (meta?.subPaths) {
+      try {
+        const subs = JSON.parse(meta.subPaths) as { language: string; path: string }[];
+        for (const sub of subs) {
+          try { fs.unlinkSync(sub.path); } catch { /* ignore */ }
+        }
+      } catch { /* malformed JSON — fall through to legacy path */ }
+    } else if (dl) {
+      const dir = path.dirname(dl.outputPath);
+      for (const sub of dl.subUrls) {
+        try { fs.unlinkSync(path.join(dir, path.basename(dl.outputPath, '.mp4') + '.' + sub.language + '.ass')); } catch { /* ignore */ }
+      }
     }
     storage.deleteDownload(episodeId);
     storage.deleteEpisodeMetadata(episodeId);

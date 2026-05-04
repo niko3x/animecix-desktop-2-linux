@@ -140,6 +140,10 @@ export function getOfflineMimeType(ext: string): string {
  * Matches the methods added to StorageService in Plan 01.
  */
 export interface OfflineStorageService {
+  getEpisodeVideoPaths(episodeId: string): {
+    videoPath: string;
+    subPaths: string; // JSON array of { language: string; path: string }
+  } | null;
   getDownloadById(id: string): {
     id: string;
     episodeId: string;
@@ -186,26 +190,40 @@ export function registerOfflineProtocol(
 
     let filePath: string | null = null;
 
-    // Priority 1: Check completed downloads
-    const download = storage.getDownloadById(episodeId);
-    if (download && download.status === 'completed') {
+    // Priority 1: Check episode_metadata (decoupled from download_queue)
+    const meta = storage.getEpisodeVideoPaths(episodeId);
+    if (meta) {
       if (type === 'video') {
-        filePath = download.outputPath;
+        filePath = meta.videoPath;
       } else if (type === 'sub' && language) {
-        // Subtitle is stored alongside the MP4 as {basename}.{lang}.ass
-        const basePath = download.outputPath.replace(/\.mp4$/, '');
-        filePath = `${basePath}.${language}.ass`;
+        try {
+          const subs = JSON.parse(meta.subPaths) as { language: string; path: string }[];
+          const match = subs.find((s) => s.language === language);
+          if (match) filePath = match.path;
+        } catch { /* malformed — fall through */ }
       }
     }
 
-    // Priority 2: Check streaming cache
+    // Priority 2: Legacy fallback — check completed downloads in download_queue
+    if (!filePath) {
+      const download = storage.getDownloadById(episodeId);
+      if (download && download.status === 'completed') {
+        if (type === 'video') {
+          filePath = download.outputPath;
+        } else if (type === 'sub' && language) {
+          const basePath = download.outputPath.replace(/\.mp4$/, '');
+          filePath = `${basePath}.${language}.ass`;
+        }
+      }
+    }
+
+    // Priority 3: Check streaming cache
     if (!filePath) {
       const cacheEntry = storage.getCacheEntry(episodeId);
       if (cacheEntry) {
         if (type === 'video') {
           filePath = cacheEntry.mp4Path;
         } else if (type === 'sub' && language) {
-          // subPaths is a JSON array of { language: string; path: string } objects
           try {
             const subPaths = JSON.parse(cacheEntry.subPaths) as {
               language: string;
