@@ -94,6 +94,10 @@ function createMockStorage() {
       downloads.delete(id);
       chunks.delete(id);
     },
+
+    deleteEpisodeMetadata(_episodeId: string): void {
+      // no-op in mock
+    },
   };
 }
 
