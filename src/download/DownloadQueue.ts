@@ -106,13 +106,19 @@ export class DownloadQueue extends EventEmitter {
   }
 
   cancel(id: string): void {
+    const item = this.storage.getDownloadById(id);
+
+    // Completed downloads must not be removed from the queue — the offline
+    // protocol resolves video paths via download_queue. Use the library
+    // delete button to remove completed content (it cleans everything).
+    if (item?.status === 'completed') return;
+
     if (this.activeDownloadId === id && this.activeDownloader) {
       this.activeDownloader.pause(); // aborts requests
       this.activeDownloader = null;
       this.activeDownloadId = null;
     }
 
-    const item = this.storage.getDownloadById(id);
     if (item) {
       for (const chunk of item.chunks) {
         try {
@@ -125,8 +131,6 @@ export class DownloadQueue extends EventEmitter {
       }
     }
 
-    // Library reads from episode_metadata (independent of download_queue),
-    // so deleting the queue record does not affect the library.
     this.storage.deleteDownload(id);
     this.processNext();
   }
