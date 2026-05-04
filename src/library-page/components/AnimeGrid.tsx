@@ -7,9 +7,10 @@ interface Props {
   animes: LibraryAnime[];
   expandedAnime: string | null;
   onCardClick: (animeTitle: string) => void;
+  onDeleteEpisode: (episodeId: string, source: 'download' | 'cache') => void;
 }
 
-export function AnimeGrid({ animes, expandedAnime, onCardClick }: Props) {
+export function AnimeGrid({ animes, expandedAnime, onCardClick, onDeleteEpisode }: Props) {
   const gridRef = useRef<HTMLDivElement>(null);
   const colCount = useColumnCount(gridRef);
 
@@ -38,6 +39,7 @@ export function AnimeGrid({ animes, expandedAnime, onCardClick }: Props) {
         <EpisodeListExpand
           key={`expand-${expandedAnime}`}
           animeTitle={expandedAnime!}
+          onDeleteEpisode={onDeleteEpisode}
         />
       );
     }

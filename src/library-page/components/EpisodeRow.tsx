@@ -4,6 +4,7 @@ import { TypeBadge } from './TypeBadge';
 
 interface Props {
   episode: LibraryEpisode;
+  onDelete: (episodeId: string) => void;
 }
 
 function formatBytes(bytes: number): string {
@@ -14,9 +15,13 @@ function formatBytes(bytes: number): string {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
 }
 
-export function EpisodeRow({ episode }: Props) {
+export function EpisodeRow({ episode, onDelete }: Props) {
   const handlePlay = async () => {
     await window.animecix?.playOfflineEpisode(episode.episodeId);
+  };
+
+  const handleDelete = () => {
+    onDelete(episode.episodeId);
   };
 
   const label = episode.seasonNumber
@@ -69,6 +74,23 @@ export function EpisodeRow({ episode }: Props) {
         }}
       >
         İzle
+      </button>
+
+      <button
+        onClick={handleDelete}
+        title="Sil"
+        style={{
+          background: 'transparent', color: 'var(--text-muted)',
+          fontSize: 16, lineHeight: '1',
+          padding: '4px 8px', borderRadius: 4,
+          cursor: 'pointer',
+        }}
+        onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = '#ef4444'; }}
+        onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = 'var(--text-muted)'; }}
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+        </svg>
       </button>
     </div>
   );

@@ -4,10 +4,11 @@ import { EpisodeRow } from './EpisodeRow';
 
 interface Props {
   animeTitle: string;
+  onDeleteEpisode: (episodeId: string, source: 'download' | 'cache') => void;
 }
 
-export function EpisodeListExpand({ animeTitle }: Props) {
-  const { episodes, loading } = useEpisodeData(animeTitle);
+export function EpisodeListExpand({ animeTitle, onDeleteEpisode }: Props) {
+  const { episodes, loading, refresh } = useEpisodeData(animeTitle);
   const contentRef = useRef<HTMLDivElement>(null);
   const [maxHeight, setMaxHeight] = useState(0);
 
@@ -38,7 +39,10 @@ export function EpisodeListExpand({ animeTitle }: Props) {
           </div>
         ) : (
           episodes.map((ep) => (
-            <EpisodeRow key={ep.episodeId} episode={ep} />
+            <EpisodeRow key={ep.episodeId} episode={ep} onDelete={(id) => {
+              onDeleteEpisode(id, ep.source);
+              refresh();
+            }} />
           ))
         )}
       </div>

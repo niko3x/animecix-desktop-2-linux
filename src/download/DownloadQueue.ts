@@ -112,9 +112,10 @@ export class DownloadQueue extends EventEmitter {
       this.activeDownloadId = null;
     }
 
+    // Only clean up temp chunk files — completed video files and library
+    // entries are managed by the library page's delete action, not here.
     const item = this.storage.getDownloadById(id);
     if (item) {
-      // Clean up temp chunk files
       for (const chunk of item.chunks) {
         try {
           if (fs.existsSync(chunk.tempPath)) {
@@ -124,14 +125,6 @@ export class DownloadQueue extends EventEmitter {
           // Ignore cleanup errors
         }
       }
-      // Clean up completed video file if it exists
-      try {
-        if (fs.existsSync(item.outputPath)) {
-          fs.unlinkSync(item.outputPath);
-        }
-      } catch { /* ignore */ }
-
-      this.storage.deleteEpisodeMetadata(item.episodeId);
     }
 
     this.storage.deleteDownload(id);

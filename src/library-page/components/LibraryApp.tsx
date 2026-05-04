@@ -26,6 +26,15 @@ export function LibraryApp() {
     await window.animecix?.hideLibrary();
   };
 
+  const handleDeleteEpisode = async (episodeId: string, source: 'download' | 'cache') => {
+    if (source === 'download') {
+      await window.animecix?.deleteDownload(episodeId);
+    } else {
+      await window.animecix?.deleteCache(episodeId);
+    }
+    refresh();
+  };
+
   if (loading) {
     return (
       <div style={{
@@ -79,6 +88,7 @@ export function LibraryApp() {
             animes={filteredAnimes}
             expandedAnime={expandedAnime}
             onCardClick={handleCardClick}
+            onDeleteEpisode={handleDeleteEpisode}
           />
         )}
       </div>

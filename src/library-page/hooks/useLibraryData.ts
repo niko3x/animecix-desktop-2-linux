@@ -9,6 +9,8 @@ declare global {
       showLibrary: () => Promise<void>;
       hideLibrary: () => Promise<void>;
       playOfflineEpisode: (episodeId: string) => Promise<void>;
+      deleteDownload: (episodeId: string) => Promise<void>;
+      deleteCache: (episodeId: string) => Promise<void>;
       isOnline: () => boolean;
     };
   }
@@ -43,7 +45,7 @@ export function useEpisodeData(animeTitle: string | null) {
   const [episodes, setEpisodes] = useState<LibraryEpisode[]>([]);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
+  const fetchEpisodes = useCallback(() => {
     if (!animeTitle) {
       setEpisodes([]);
       return;
@@ -55,5 +57,9 @@ export function useEpisodeData(animeTitle: string | null) {
       .finally(() => setLoading(false));
   }, [animeTitle]);
 
-  return { episodes, loading };
+  useEffect(() => {
+    fetchEpisodes();
+  }, [fetchEpisodes]);
+
+  return { episodes, loading, refresh: fetchEpisodes };
 }
