@@ -15,11 +15,26 @@
 import { ipcMain, BrowserWindow, net, app } from 'electron';
 import { StorageService } from '../storage/StorageService';
 import { LibraryManager } from './LibraryManager';
+import type { Video, SkipMeta } from '../player-page/types';
 import path from 'node:path';
 import fs from 'node:fs';
 import log from 'electron-log';
 
-let pendingOfflineData: { video: any; skipMeta: any } | null = null;
+interface OfflineNavigation {
+  prevEpisodeId: string | null;
+  nextEpisodeId: string | null;
+  episodeTitle: string;
+  seasonNumber: string;
+  episodeNumber: string;
+}
+
+interface PendingOfflineData {
+  video: Video;
+  skipMeta: SkipMeta | null;
+  navigation: OfflineNavigation;
+}
+
+let pendingOfflineData: PendingOfflineData | null = null;
 
 export function registerLibraryIpc(
   mainWindow: BrowserWindow,

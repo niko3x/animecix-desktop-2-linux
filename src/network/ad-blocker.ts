@@ -19,7 +19,7 @@ export function isWhitelisted(url: string): boolean {
  * provides shouldBlock(url) for the combined request handler.
  */
 export class AdBlocker {
-  private filterData: object = {};
+  private filterData: ABPFilterParser.FilterData = {};
   private filtersLoaded = false;
 
   constructor() {
