@@ -163,6 +163,17 @@ jobs:
           TAG="${GITHUB_REF_NAME}"
           echo "--- Artifacts in out/make ---"
           find out/make -type f | sort
+          # Rename Setup.exe to remove spaces — GitHub mangles spaces in asset names
+          # which causes electron-updater URL mismatch (latest.yml vs actual asset).
+          find out/make -name '*Setup.exe' | while read f; do
+            newname="$(echo "$f" | sed 's/ /-/g')"
+            if [ "$f" != "$newname" ]; then mv "$f" "$newname"; fi
+          done
+          # Generate blockmap for differential updates
+          SETUP=$(find out/make -name '*Setup.exe' -type f | head -1)
+          if [ -n "$SETUP" ]; then
+            npx --yes app-builder-bin blockmap --input "$SETUP" --output "${SETUP}.blockmap" --compression gzip || echo "::warning::blockmap generation failed, full download will be used"
+          fi
           echo "--- Uploading Setup.exe + blockmap + nupkg + RELEASES ---"
           find out/make -type f \( -name '*Setup.exe' -o -name '*.blockmap' -o -name '*.nupkg' -o -name 'RELEASES' \) \
             -exec gh release upload "$TAG" {} --clobber --repo "$GITHUB_REPOSITORY" \;
