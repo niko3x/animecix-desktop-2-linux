@@ -31,6 +31,7 @@ export interface UpdaterApi {
   checkForUpdates(): Promise<void>;
   install(): Promise<void>;
   dismissBanner(): void;
+  openDownloadPage(): void;
   /** Returns an unsubscribe function */
   onUpdateReady(cb: (payload: UpdateReadyPayload) => void): () => void;
   /** Returns an unsubscribe function */

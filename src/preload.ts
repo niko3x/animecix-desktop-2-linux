@@ -124,6 +124,7 @@ const updaterApi: UpdaterApi = {
   checkForUpdates: () => ipcRenderer.invoke(UPDATER_CHANNELS.CHECK_FOR_UPDATES),
   install: () => ipcRenderer.invoke(UPDATER_CHANNELS.INSTALL),
   dismissBanner: () => ipcRenderer.send(UPDATER_CHANNELS.DISMISS_BANNER),
+  openDownloadPage: () => ipcRenderer.send('updater:openDownloadPage'),
   onUpdateReady: (cb: (payload: UpdateReadyPayload) => void) => {
     const listener = (_: Electron.IpcRendererEvent, payload: UpdateReadyPayload) => cb(payload);
     ipcRenderer.on(UPDATER_CHANNELS.UPDATE_READY, listener);

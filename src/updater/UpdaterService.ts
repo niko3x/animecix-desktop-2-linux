@@ -1,6 +1,7 @@
 import { app } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
+import { markQuitting } from '../window/WindowService.js';
 import {
   UPDATER_CHANNELS,
   type UpdateReadyPayload,
@@ -101,11 +102,13 @@ export class UpdaterService {
 
   async install(): Promise<void> {
     log.info('[updater] quitAndInstall');
-    // quitAndInstall calls app.quit() internally, but macOS close-to-hide
-    // intercept can prevent the actual quit. Force exit after a short delay
-    // to ensure the update installs.
+    // Bypass macOS close-to-hide so app.quit() actually exits
+    markQuitting();
     autoUpdater.quitAndInstall(false, true);
-    setTimeout(() => app.exit(0), 1000);
+    // Squirrel.Mac waits for the app to exit before installing.
+    // quitAndInstall triggers app.quit() but that can be intercepted.
+    // Force exit after a short delay to unblock ShipIt.
+    setTimeout(() => app.exit(0), 1500);
   }
 
   dismissBannerForSession(): void {

@@ -52,7 +52,8 @@ export function parseDeepLinkUrl(
     return null;
   }
 
-  const afterLogin = rest.slice('login'.length);
+  // Windows appends trailing slash to custom protocol URLs — strip it
+  const afterLogin = rest.slice('login'.length).replace(/\/+$/, '');
 
   // Must have data after 'login'
   if (!afterLogin) {

@@ -9,7 +9,7 @@
  * - The same preload.ts file is reused so animecixAPI.updater is available in the banner.
  */
 
-import { BrowserView, BrowserWindow, ipcMain } from 'electron';
+import { BrowserView, BrowserWindow, ipcMain, shell } from 'electron';
 import path from 'node:path';
 import log from 'electron-log';
 import { UPDATER_CHANNELS } from '../types/updater.js';
@@ -29,10 +29,12 @@ button:hover{filter:brightness(1.15)}
 </style></head><body>
 <div class="banner"><span class="msg">Yeni sürüm hazır</span>
 <button class="primary" id="install">Şimdi yeniden başlat</button>
-<button class="secondary" id="dismiss">Sonra</button></div>
+<button class="secondary" id="dismiss">Sonra</button>
+<button class="secondary" id="manual" style="color:#6b7280;font-size:12px;border:none;padding:4px 8px">Sorun mu yaşıyorsunuz?</button></div>
 <script>
 document.getElementById('install').onclick=()=>window.animecixAPI.updater.install();
 document.getElementById('dismiss').onclick=()=>{window.animecixAPI.updater.dismissBanner();};
+document.getElementById('manual').onclick=()=>{window.animecixAPI.updater.openDownloadPage();};
 </script></body></html>`;
 
 export class UpdaterBanner {
@@ -53,6 +55,10 @@ export class UpdaterBanner {
     // Dismiss IPC — renderer sends this when "Sonra" is clicked
     ipcMain.on(UPDATER_CHANNELS.DISMISS_BANNER, () => {
       this.hide();
+    });
+
+    ipcMain.on('updater:openDownloadPage', () => {
+      shell.openExternal('https://animecix.tv/pages/118/download-apps');
     });
   }
 
@@ -96,8 +102,12 @@ export class UpdaterBanner {
       this.resizeHandler = null;
     }
 
-    this.mainWindow.removeBrowserView(this.view);
-    (this.view.webContents as Electron.WebContents).destroy?.();
+    if (!this.mainWindow.isDestroyed()) {
+      this.mainWindow.removeBrowserView(this.view);
+    }
+    if (!this.view.webContents.isDestroyed()) {
+      this.view.webContents.destroy();
+    }
     this.view = null;
     log.info('[updater-banner] Banner hidden');
   }
