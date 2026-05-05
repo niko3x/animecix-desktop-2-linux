@@ -73,8 +73,8 @@ Renderer
 
 ```bash
 # Clone
-git clone https://github.com/CaptainSP/animecix-dekstop-2.git
-cd animecix-dekstop-2
+git clone https://github.com/CaptainSP/animecix-desktop-2.git
+cd animecix-desktop-2
 
 # Install dependencies (also rebuilds native modules for Electron)
 npm install

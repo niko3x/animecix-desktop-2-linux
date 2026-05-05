@@ -38,7 +38,7 @@ This checklist MUST be fully checked before the first public release (the first 
       - `com.apple.security.cs.disable-executable-page-protection`
       - `com.apple.security.get-task-allow` (dangerous — allows debugger attach)
 
-- [ ] **Update channel integrity (T-4-13)** — `resources/app-update.yml` points to owner: `CaptainSP`, repo: `animecix-dekstop-2`. Verify this matches the actual repository where releases will be published. Do NOT point at a fork or test repo by mistake.
+- [ ] **Update channel integrity (T-4-13)** — `resources/app-update.yml` points to owner: `CaptainSP`, repo: `animecix-desktop-2`. Verify this matches the actual repository where releases will be published. Do NOT point at a fork or test repo by mistake.
 
 - [ ] **Tag/version alignment (T-4-05)** — before the real release, confirm `package.json` version field matches the intended tag. `node scripts/verify-tag.mjs` must exit 0 locally:
       ```bash

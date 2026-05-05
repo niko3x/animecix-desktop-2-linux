@@ -2,7 +2,7 @@
 
 Follow these steps for every release. A release takes ~20–30 minutes of active time + ~15 minutes of CI wait.
 
-**Repository:** https://github.com/CaptainSP/animecix-dekstop-2
+**Repository:** https://github.com/CaptainSP/animecix-desktop-2
 **CI Workflow:** `.github/workflows/release.yml` — triggered automatically on `v*.*.*` tag push
 
 ---
@@ -54,7 +54,7 @@ GITHUB_REF_NAME="v${VERSION}" node scripts/verify-tag.mjs
 
 ## 3. Watch CI
 
-- Visit the **Actions** tab at https://github.com/CaptainSP/animecix-dekstop-2/actions — find the "Release" workflow run.
+- Visit the **Actions** tab at https://github.com/CaptainSP/animecix-desktop-2/actions — find the "Release" workflow run.
 - Expect both `macos-14` and `windows-latest` matrix legs to complete in 10–15 min each.
 - The legs run independently (`fail-fast: false`) — one failing does not cancel the other.
 
@@ -72,7 +72,7 @@ GITHUB_REF_NAME="v${VERSION}" node scripts/verify-tag.mjs
 
 ## 4. Verify draft release artifacts
 
-Visit https://github.com/CaptainSP/animecix-dekstop-2/releases — open the new **draft** release. Confirm these **7 assets** are attached:
+Visit https://github.com/CaptainSP/animecix-desktop-2/releases — open the new **draft** release. Confirm these **7 assets** are attached:
 
 | Asset | Platform | Purpose |
 |-------|----------|---------|

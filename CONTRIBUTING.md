@@ -16,8 +16,8 @@ Thank you for your interest in contributing! This guide will help you get starte
 ### Getting Started
 
 ```bash
-git clone https://github.com/CaptainSP/animecix-dekstop-2.git
-cd animecix-dekstop-2
+git clone https://github.com/CaptainSP/animecix-desktop-2.git
+cd animecix-desktop-2
 npm install
 cp .env.example .env
 # Fill in .env with your values (see README.md for details)

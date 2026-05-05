@@ -1,20 +1,20 @@
 {
   "name": "animecix-v2",
   "productName": "AnimeciX",
-  "version": "0.1.17",
+  "version": "0.1.18",
   "description": "Electron desktop app for AnimeciX — anime streaming, downloading, and offline playback",
   "main": ".vite/build/main.js",
   "private": true,
   "repository": {
     "type": "git",
-    "url": "https://github.com/CaptainSP/animecix-dekstop-2.git"
+    "url": "https://github.com/CaptainSP/animecix-desktop-2.git"
   },
   "build": {
     "publish": [
       {
         "provider": "github",
         "owner": "CaptainSP",
-        "repo": "animecix-dekstop-2"
+        "repo": "animecix-desktop-2"
       }
     ]
   },

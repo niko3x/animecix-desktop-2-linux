@@ -17,7 +17,7 @@
 ## CRITICAL
 
 - [x] **C1. LICENSE file missing** — No LICENSE file at repo root despite MIT in package.json
-- [x] **C2. README.md empty** — Only contains `# animecix-dekstop-2`
+- [x] **C2. README.md empty** — Only contains `# animecix-desktop-2`
 - [x] **C3. tau-video.xyz API URLs hardcoded** — Exposed in 7+ files → moved to env vars
 - [x] **C4. CDN Referer-based auth recipe exposed** — header-rules.ts → moved to env vars
 - [x] **C5. Discord Client ID hardcoded** → moved to env var (note: not actually secret)

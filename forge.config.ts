@@ -90,7 +90,7 @@ const config: ForgeConfig = {
     new MakerSquirrel({
       name: 'AnimeciX',                                 // D-27 — installer name
       setupIcon: 'assets/icon.ico',
-      iconUrl: 'https://raw.githubusercontent.com/CaptainSP/animecix-dekstop-2/main/assets/icon.ico',
+      iconUrl: 'https://raw.githubusercontent.com/CaptainSP/animecix-desktop-2/main/assets/icon.ico',
     }),
     new MakerZIP({}, ['darwin']),                       // D-03 — update channel
     new MakerDMG({
@@ -104,7 +104,7 @@ const config: ForgeConfig = {
       config: {
         repository: {
           owner: 'CaptainSP',
-          name: 'animecix-dekstop-2',
+          name: 'animecix-desktop-2',
         },
         draft: true,                                     // D-21 — manual "Publish release" gate; no accidental ships
         prerelease: false,                               // D-12 — single stable channel
