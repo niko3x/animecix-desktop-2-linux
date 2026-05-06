@@ -8,6 +8,7 @@ import './library/library-protocol'; // Side-effect: registers animecix-library:
 import { registerLibraryProtocol } from './library/library-protocol';
 
 import { app, BrowserWindow, net } from 'electron';
+import { startPlayerServer, getPlayerBaseUrl } from './player/tau-localhost';
 import path from 'node:path';
 import started from 'electron-squirrel-startup';
 import { StorageService } from './storage/StorageService';
@@ -35,6 +36,12 @@ import { registerUpdaterIpc } from './updater/updater.ipc';
 import { UpdaterBanner } from './updater/UpdaterBanner';
 import { LibraryManager } from './library/LibraryManager';
 import { registerLibraryIpc } from './library/library.ipc';
+
+// Enable WebGPU for video enhancement (Anime4K upscaling + filters)
+app.commandLine.appendSwitch('enable-unsafe-webgpu');
+app.commandLine.appendSwitch('enable-features', 'Vulkan,WebGPU');
+app.commandLine.appendSwitch('use-angle', 'metal');
+app.commandLine.appendSwitch('ignore-gpu-blocklist');
 
 // Handle Squirrel.Windows install/uninstall shortcuts
 if (started) {
@@ -89,6 +96,16 @@ if (!gotLock) {
 
     // Phase 2: Register tau-player:// protocol handler (serves assets/player/)
     registerTauProtocol();
+
+    // Start localhost HTTP server for player (WebGPU requires trustworthy origin)
+    startPlayerServer().then(port => {
+      if (mainWindow) {
+        mainWindow.webContents.executeJavaScript(`window.__tauPlayerPort = ${port};`);
+        mainWindow.webContents.on('did-finish-load', () => {
+          mainWindow?.webContents.executeJavaScript(`window.__tauPlayerPort = ${port};`);
+        });
+      }
+    }).catch(e => console.error('Failed to start player server:', e));
 
     // Phase 2: Network layer — ad blocker + request interception + CDN header rewriter
     const adBlocker = new AdBlocker();

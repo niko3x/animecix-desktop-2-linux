@@ -45,12 +45,16 @@ const api: AnimecixAPI = {
   // This eliminates the player's own API fetch, cutting ~200-500ms from load time.
   fetchVideoData: (id: string, vid?: string) => ipcRenderer.invoke('video:fetch', id, vid),
 
-  // Converts a tau-video.xyz embed URL to the local tau-player:// URL.
-  // Website uses this to set iframe src directly, skipping the network intercept redirect.
+  // Converts a tau-video.xyz embed URL to the local player URL.
+  // Prefers http://tau-player.localhost:PORT (WebGPU support) with tau-player:// fallback.
   getPlayerUrl: (embedUrl: string): string | null => {
     try {
       const parsed = new URL(embedUrl);
       if (parsed.hostname === import.meta.env.VITE_CDN_DOMAIN && (parsed.pathname.startsWith('/embed/') || parsed.pathname.startsWith('/embed-2/'))) {
+        const port = (window as any).__tauPlayerPort;
+        if (port) {
+          return `http://tau-player.localhost:${port}${parsed.pathname}${parsed.search}`;
+        }
         return `tau-player://bundle${parsed.pathname}${parsed.search}`;
       }
     } catch { /* invalid URL */ }

@@ -138,7 +138,9 @@ export function registerLibraryIpc(
         skipMeta: null,
         navigation: { prevEpisodeId, nextEpisodeId, episodeTitle, seasonNumber: seasonNum, episodeNumber: episodeNum },
       };
-      await mainWindow.loadURL('tau-player://bundle/embed/offline');
+      const { getPlayerBaseUrl } = await import('../player/tau-localhost');
+      const base = getPlayerBaseUrl();
+      await mainWindow.loadURL(base ? `${base}/embed/offline` : 'tau-player://bundle/embed/offline');
       log.info(`[library] Playing offline episode: ${episodeId}`);
     }
   });
