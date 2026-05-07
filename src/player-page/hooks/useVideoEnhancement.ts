@@ -12,8 +12,8 @@ export interface ColorFilters {
 
 export interface EnhancementStats {
   fps: number;
-  frameTime: number;
-  resolution: string;
+  outputLabel: string;
+  performance: 'excellent' | 'good' | 'poor' | null;
 }
 
 const DEFAULT_FILTERS: ColorFilters = { brightness: 1, contrast: 1, saturate: 1 };
@@ -53,7 +53,7 @@ function loadFilters(): ColorFilters {
 export function useVideoEnhancement(containerRef: React.RefObject<HTMLElement | null>) {
   const [preset, setPresetState] = useState<UpscalePreset>(loadPreset);
   const [filters, setFiltersState] = useState<ColorFilters>(loadFilters);
-  const [stats, setStats] = useState<EnhancementStats>({ fps: 0, frameTime: 0, resolution: '-' });
+  const [stats, setStats] = useState<EnhancementStats>({ fps: 0, outputLabel: '', performance: null });
   const [panelOpen, setPanelOpen] = useState(false);
   const sessionRef = useRef<Session | null>(null);
 
@@ -67,7 +67,7 @@ export function useVideoEnhancement(containerRef: React.RefObject<HTMLElement | 
     }
     const container = containerRef.current;
     if (container) container.innerHTML = '';
-    setStats({ fps: 0, frameTime: 0, resolution: '-' });
+    setStats({ fps: 0, outputLabel: '', performance: null });
   }, [containerRef]);
 
   const startRendering = useCallback(async (selectedPreset: UpscalePreset) => {
@@ -83,7 +83,8 @@ export function useVideoEnhancement(containerRef: React.RefObject<HTMLElement | 
     const nativeH = video.videoHeight;
     const canvasW = nativeW * 2;
     const canvasH = nativeH * 2;
-    const resolution = `${nativeW}x${nativeH} → ${canvasW}x${canvasH}`;
+
+    const outputLabel = canvasH >= 2160 ? '4K' : canvasH >= 1440 ? '2K' : `${canvasH}p`;
 
     const canvas = document.createElement('canvas');
     canvas.className = 'enhancement-canvas';
@@ -162,12 +163,10 @@ export function useVideoEnhancement(containerRef: React.RefObject<HTMLElement | 
 
           frameCount++;
           const elapsed = performance.now() - fpsTime;
-          if (elapsed >= 1000) {
-            setStats({
-              fps: Math.round((frameCount / elapsed) * 1000),
-              frameTime: Math.round((performance.now() - t0) * 10) / 10,
-              resolution,
-            });
+          if (elapsed >= 3000) {
+            const fps = Math.round((frameCount / elapsed) * 1000);
+            const perf: EnhancementStats['performance'] = fps >= 20 ? 'excellent' : fps >= 14 ? 'good' : 'poor';
+            setStats({ fps, outputLabel, performance: perf });
             frameCount = 0;
             fpsTime = performance.now();
           }

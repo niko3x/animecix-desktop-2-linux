@@ -14,10 +14,16 @@ interface Props {
 
 const PRESETS: { value: UpscalePreset; label: string; desc: string }[] = [
   { value: 'off', label: 'Kapalı', desc: 'Orijinal kalite' },
-  { value: 'light', label: 'Hafif', desc: 'CNN Upscale (2x)' },
-  { value: 'balanced', label: 'Dengeli', desc: 'Restore + Upscale + CAS + Deband' },
-  { value: 'maximum', label: 'Maksimum', desc: 'Full Restore + Upscale + Deblur + CAS' },
+  { value: 'light', label: 'Standart', desc: 'Hızlı iyileştirme' },
+  { value: 'balanced', label: 'Yüksek', desc: 'Dengeli kalite' },
+  { value: 'maximum', label: 'Ultra', desc: 'En iyi kalite' },
 ];
+
+const PERF_LABELS: Record<string, { text: string; className: string }> = {
+  excellent: { text: 'Cihazınız bu mod için uygun', className: 've-perf-excellent' },
+  good: { text: 'Cihazınız bu modu kaldırıyor', className: 've-perf-good' },
+  poor: { text: 'Cihazınız bu mod için yeterli olmayabilir', className: 've-perf-poor' },
+};
 
 function Slider({
   label,
@@ -86,7 +92,6 @@ export function EnhancementPanel({
           </div>
 
           <div className="ve-section">
-            <div className="ve-section-title">Upscale Modu</div>
             <div className="ve-presets">
               {PRESETS.map((p) => (
                 <button
@@ -101,8 +106,21 @@ export function EnhancementPanel({
             </div>
           </div>
 
+          {isActive && stats.outputLabel && (
+            <div className="ve-info-row">
+              <div className="ve-output-badge">{stats.outputLabel}</div>
+              {stats.fps > 0 && <span className="ve-fps">{stats.fps} FPS</span>}
+            </div>
+          )}
+
+          {isActive && stats.performance && (
+            <div className={`ve-perf ${PERF_LABELS[stats.performance].className}`}>
+              {PERF_LABELS[stats.performance].text}
+            </div>
+          )}
+
           <div className="ve-section">
-            <div className="ve-section-title">Renk Filtreleri</div>
+            <div className="ve-section-title">Renk Ayarları</div>
             <Slider
               label="Parlaklık"
               value={filters.brightness}
@@ -134,14 +152,6 @@ export function EnhancementPanel({
               Sıfırla
             </button>
           </div>
-
-          {isActive && (
-            <div className="ve-stats">
-              <span>{stats.fps} FPS</span>
-              <span>{stats.frameTime.toFixed(1)}ms</span>
-              <span>{stats.resolution}</span>
-            </div>
-          )}
         </div>
       )}
     </>

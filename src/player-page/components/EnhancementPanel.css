@@ -1,4 +1,4 @@
-/* Toggle button */
+/* Toggle button — matches player overlay buttons (skip, nav) */
 .ve-toggle-btn {
   position: absolute;
   top: 12px;
@@ -9,56 +9,53 @@
   justify-content: center;
   width: 36px;
   height: 36px;
-  background: rgba(0, 0, 0, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 8px;
   color: rgba(255, 255, 255, 0.7);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease;
   opacity: 1;
   pointer-events: auto;
 }
 
-[data-controls] .ve-toggle-btn,
 .ve-toggle-btn:hover {
-  opacity: 1;
+  background: rgba(255, 255, 255, 0.04);
+  color: #fff;
 }
 
 .ve-toggle-btn.active {
-  color: #fbbf24;
-  border-color: rgba(251, 191, 36, 0.4);
-  background: rgba(251, 191, 36, 0.15);
+  color: #0074E4;
+  border-color: rgba(0, 116, 228, 0.4);
+  background: rgba(0, 116, 228, 0.1);
 }
 
-.ve-toggle-btn:hover {
-  background: rgba(255, 255, 255, 0.15);
-}
-
-/* Panel */
+/* Panel — glass-surface-heavy pattern from design system */
 .ve-panel {
   position: absolute;
   top: 56px;
   right: 12px;
   z-index: 999998;
   width: 280px;
-  background: rgba(15, 15, 20, 0.92);
-  backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
+  background: rgba(15, 15, 15, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
   padding: 16px;
-  color: white;
-  font-size: 13px;
+  color: #fff;
+  font-family: 'Inter', 'Helvetica Neue', sans-serif;
+  font-size: 14px;
   pointer-events: auto;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
 }
 
 .ve-panel-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 14px;
+  margin-bottom: 16px;
   font-weight: 600;
-  font-size: 14px;
+  font-size: 16px;
 }
 
 .ve-close-btn {
@@ -68,26 +65,26 @@
   cursor: pointer;
   padding: 4px;
   display: flex;
+  transition: color 150ms ease;
 }
 
 .ve-close-btn:hover {
-  color: white;
+  color: #fff;
 }
 
 /* Sections */
 .ve-section {
-  margin-bottom: 14px;
+  margin-bottom: 16px;
 }
 
 .ve-section-title {
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: rgba(255, 255, 255, 0.4);
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.5);
   margin-bottom: 8px;
 }
 
-/* Presets */
+/* Presets — secondary button variant */
 .ve-presets {
   display: flex;
   flex-direction: column;
@@ -99,33 +96,87 @@
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  padding: 8px 10px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 6px;
-  color: white;
+  padding: 8px 12px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  color: #fff;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: background-color 150ms ease, border-color 150ms ease;
   text-align: left;
 }
 
 .ve-preset-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.12);
 }
 
 .ve-preset-btn.selected {
-  background: rgba(251, 191, 36, 0.12);
-  border-color: rgba(251, 191, 36, 0.35);
+  background: rgba(0, 116, 228, 0.1);
+  border-color: #0074E4;
 }
 
 .ve-preset-label {
   font-weight: 500;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .ve-preset-desc {
-  font-size: 10px;
-  color: rgba(255, 255, 255, 0.35);
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* Info row (badge + FPS) */
+.ve-info-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.ve-output-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  background: rgba(0, 116, 228, 0.1);
+  border: 1px solid rgba(0, 116, 228, 0.3);
+  border-radius: 4px;
+  color: #1a8fff;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.ve-fps {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.5);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Performance indicator */
+.ve-perf {
+  font-size: 12px;
+  margin-bottom: 12px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid;
+}
+
+.ve-perf-excellent {
+  color: #43a047;
+  background: rgba(67, 160, 71, 0.08);
+  border-color: rgba(67, 160, 71, 0.2);
+}
+
+.ve-perf-good {
+  color: #ff9800;
+  background: rgba(255, 152, 0, 0.08);
+  border-color: rgba(255, 152, 0, 0.2);
+}
+
+.ve-perf-poor {
+  color: #f44336;
+  background: rgba(244, 67, 54, 0.08);
+  border-color: rgba(244, 67, 54, 0.2);
 }
 
 /* Sliders */
@@ -137,7 +188,7 @@
   display: flex;
   justify-content: space-between;
   margin-bottom: 4px;
-  font-size: 12px;
+  font-size: 13px;
 }
 
 .ve-slider-value {
@@ -149,8 +200,8 @@
   -webkit-appearance: none;
   width: 100%;
   height: 4px;
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 9999px;
   outline: none;
 }
 
@@ -158,38 +209,27 @@
   -webkit-appearance: none;
   width: 14px;
   height: 14px;
-  background: white;
+  background: #0074E4;
   border-radius: 50%;
   cursor: pointer;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
-/* Reset button */
+/* Reset button — ghost variant */
 .ve-reset-btn {
   width: 100%;
-  padding: 6px;
+  padding: 8px;
   margin-top: 4px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 6px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
   color: rgba(255, 255, 255, 0.5);
   cursor: pointer;
-  font-size: 11px;
-  transition: all 0.15s;
+  font-size: 13px;
+  font-weight: 500;
+  transition: color 150ms ease;
 }
 
 .ve-reset-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
-}
-
-/* Stats */
-.ve-stats {
-  display: flex;
-  justify-content: space-between;
-  padding-top: 10px;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  font-size: 11px;
-  color: rgba(255, 255, 255, 0.35);
-  font-variant-numeric: tabular-nums;
+  color: #0074E4;
 }
