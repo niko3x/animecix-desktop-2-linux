@@ -35,6 +35,14 @@ button:hover{filter:brightness(1.15)}
 document.getElementById('install').onclick=()=>window.animecixAPI.updater.install();
 document.getElementById('dismiss').onclick=()=>{window.animecixAPI.updater.dismissBanner();};
 document.getElementById('manual').onclick=()=>{window.animecixAPI.updater.openDownloadPage();};
+if (${process.platform === 'linux'}) {
+  document.querySelector('.msg').textContent='Yeni sürüm mevcut';
+  const btn=document.getElementById('install');
+  btn.textContent='Yeni sürümü indir';
+  btn.onclick=()=>{window.animecixAPI.updater.openDownloadPage();};
+  document.getElementById('manual').style.display='none';
+}
+
 </script></body></html>`;
 
 export class UpdaterBanner {
