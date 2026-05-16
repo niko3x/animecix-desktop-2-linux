@@ -16,6 +16,7 @@ env:
   VITE_CDN_DOMAIN: ${{ secrets.VITE_CDN_DOMAIN }}
   VITE_SITE_URL: ${{ secrets.VITE_SITE_URL }}
   VITE_DISCORD_CLIENT_ID: ${{ secrets.VITE_DISCORD_CLIENT_ID }}
+  VITE_PLAYER_SECRET: ${{ secrets.VITE_PLAYER_SECRET }}
 
 jobs:
   # Stage 1: idempotently create the draft release so both matrix legs can
