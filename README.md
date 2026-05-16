@@ -1,3 +1,10 @@
+
+NOT: Bu fork linux desteği için açılmıştır. güncelleme almayacaktır:
+
+Ana repo linki: https://github.com/CaptainSP/animecix-desktop-2
+
+
+
 # AnimeciX Desktop
 
 Electron desktop application for [AnimeciX](https://animecix.tv) — anime streaming, downloading, and offline playback.
