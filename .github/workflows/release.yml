@@ -117,6 +117,18 @@ jobs:
         run: npx @electron/rebuild -f -w better-sqlite3
 
       # Build React pages into assets/. Forge extraResource references these.
+      # Vite reads VITE_* vars from .env (not process.env), so we write one.
+      - name: Write .env for Vite builds
+        shell: bash
+        run: |
+          cat <<EOF > .env
+          VITE_API_BASE_URL=${{ secrets.VITE_API_BASE_URL }}
+          VITE_CDN_DOMAIN=${{ secrets.VITE_CDN_DOMAIN }}
+          VITE_SITE_URL=${{ secrets.VITE_SITE_URL }}
+          VITE_DISCORD_CLIENT_ID=${{ secrets.VITE_DISCORD_CLIENT_ID }}
+          VITE_PLAYER_SECRET=${{ secrets.VITE_PLAYER_SECRET }}
+          EOF
+
       - name: Build player page
         run: npm run build:player
 
