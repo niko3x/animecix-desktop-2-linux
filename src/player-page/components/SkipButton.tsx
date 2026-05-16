@@ -14,8 +14,9 @@ export function SkipButton({ meta }: SkipButtonProps) {
   let targetTime: number | null = null;
 
   for (const key of Object.keys(meta)) {
-    const data = meta[key];
-    if (data && currentTime > data.from && currentTime < data.to) {
+    if (key === 'music') continue;
+    const data = meta[key] as { from: number; to: number } | undefined;
+    if (data && 'from' in data && currentTime > data.from && currentTime < data.to) {
       targetTime = data.to;
       break;
     }

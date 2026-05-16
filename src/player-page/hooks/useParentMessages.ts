@@ -12,11 +12,19 @@ export function postToParent(action: string, data?: Record<string, unknown>) {
   window.parent.postMessage({ action, ...data }, TARGET_ORIGIN);
 }
 
+interface LiveModeCallbacks {
+  setLiveMode: (enabled: boolean) => void;
+  liveSeek: (time: number) => void;
+  updateViewerCount: (count: number) => void;
+  endLiveMode: () => void;
+}
+
 export function useParentMessages(
   playerRef: React.RefObject<MediaPlayerInstance | null>,
   onChangeSub?: (index: number) => void,
   onChangeVideo?: (id: string, vid?: string) => void,
-  onInitVideoData?: (video: Video, meta: SkipMeta | null) => void
+  onInitVideoData?: (video: Video, meta: SkipMeta | null) => void,
+  liveMode?: LiveModeCallbacks
 ) {
   const pingRef = useRef(false);
   const pongRef = useRef(false);
@@ -103,6 +111,17 @@ export function useParentMessages(
             t.mode = data.enabled ? 'showing' : 'disabled';
           }
         }
+      } else if (data.action === 'setLiveMode' && liveMode) {
+        liveMode.setLiveMode(data.enabled);
+        if (data.enabled) {
+          postToParent('liveReady');
+        }
+      } else if (data.action === 'liveSeek' && liveMode) {
+        liveMode.liveSeek(data.time);
+      } else if (data.action === 'updateViewerCount' && liveMode) {
+        liveMode.updateViewerCount(data.count);
+      } else if (data.action === 'liveEnd' && liveMode) {
+        liveMode.endLiveMode();
       }
     }
 
@@ -156,7 +175,7 @@ export function useParentMessages(
       clearInterval(quickTimeInterval);
       clearTimeout(validationTimeout);
     };
-  }, [playerRef, onChangeSub, onChangeVideo, onInitVideoData]);
+  }, [playerRef, onChangeSub, onChangeVideo, onInitVideoData, liveMode]);
 
   return { navInfo };
 }
