@@ -1,0 +1,155 @@
+.music-info {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  margin-left: 2%;
+  margin-bottom: 8%;
+  pointer-events: auto;
+  z-index: 999998;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 10px;
+  padding: 8px 12px;
+  animation: musicSlideIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+@keyframes musicSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.music-info-content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.music-info-cover {
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  object-fit: cover;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.music-info-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.music-info-title {
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 160px;
+}
+
+.music-info-artist {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 11px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 160px;
+}
+
+.music-info-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 18px;
+  padding-left: 6px;
+}
+
+.bar {
+  width: 3px;
+  background: #1db954;
+  border-radius: 1.5px;
+  animation: barBounce 1s ease-in-out infinite;
+}
+
+.bar-1 {
+  height: 8px;
+  animation-delay: 0s;
+}
+
+.bar-2 {
+  height: 14px;
+  animation-delay: 0.2s;
+}
+
+.bar-3 {
+  height: 10px;
+  animation-delay: 0.4s;
+}
+
+@keyframes barBounce {
+  0%, 100% {
+    transform: scaleY(0.4);
+  }
+  50% {
+    transform: scaleY(1);
+  }
+}
+
+.music-info-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #1db954;
+  color: #fff;
+  text-decoration: none;
+  flex-shrink: 0;
+  transition: transform 0.2s, background 0.2s;
+}
+
+.music-info-link:hover {
+  transform: scale(1.15);
+  background: #1ed760;
+}
+
+@media (max-width: 600px) {
+  .music-info {
+    margin-bottom: 16%;
+    padding: 6px 10px;
+  }
+
+  .music-info-cover {
+    width: 28px;
+    height: 28px;
+  }
+
+  .music-info-title {
+    font-size: 11px;
+    max-width: 120px;
+  }
+
+  .music-info-artist {
+    font-size: 10px;
+    max-width: 120px;
+  }
+
+  .music-info-bars {
+    display: none;
+  }
+}

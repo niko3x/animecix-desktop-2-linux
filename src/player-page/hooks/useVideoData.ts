@@ -1,6 +1,23 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import type { Video, SkipMeta } from '../types';
 
+const PLAYER_SECRET = import.meta.env.VITE_PLAYER_SECRET || '';
+
+async function signSlug(slug: string): Promise<string> {
+  const enc = new TextEncoder();
+  const key = await crypto.subtle.importKey(
+    'raw',
+    enc.encode(PLAYER_SECRET),
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign']
+  );
+  const sig = await crypto.subtle.sign('HMAC', key, enc.encode(slug));
+  return Array.from(new Uint8Array(sig))
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('');
+}
+
 export interface OfflineNavigation {
   prevEpisodeId: string | null;
   nextEpisodeId: string | null;
@@ -50,11 +67,13 @@ export function useVideoData(initialId: string, initialVid?: string) {
         videoData.translator;
 
       try {
+        const sig = await signSlug(slug);
         const metaRes = await fetch(
           import.meta.env.VITE_API_BASE_URL + '/api/most-sought/' +
             slug +
             '?tauId=' +
-            videoData._id
+            videoData._id,
+          { headers: { 'x-player-sig': sig } }
         );
         const metaData = await metaRes.json();
         if (!cancelled) setMeta(metaData);
