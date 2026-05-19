@@ -1,9 +1,10 @@
 import { AdBlocker } from './ad-blocker';
+import { getPlayerBaseUrl } from '../player/tau-localhost';
 
 // First-party domains that must never be blocked
 const SITE_DOMAIN = new URL(import.meta.env.VITE_SITE_URL).hostname;
 const CDN_DOMAIN = import.meta.env.VITE_CDN_DOMAIN;
-const WHITELIST_PATTERNS = [SITE_DOMAIN, CDN_DOMAIN, 'localhost'];
+const WHITELIST_PATTERNS = [SITE_DOMAIN, CDN_DOMAIN, 'localhost', 'tau-player.localhost'];
 
 /**
  * Pure function: returns true if the URL should be redirected from the
@@ -26,6 +27,10 @@ export function isIframeRedirect(url: string): boolean {
  */
 export function buildRedirectUrl(url: string): string {
   const parsed = new URL(url);
+  const base = getPlayerBaseUrl();
+  if (base) {
+    return `${base}${parsed.pathname}${parsed.search}`;
+  }
   return `tau-player://bundle${parsed.pathname}${parsed.search}`;
 }
 

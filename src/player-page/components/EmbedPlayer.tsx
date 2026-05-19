@@ -13,9 +13,15 @@ import {
 
 import { turkishTranslations } from './translations';
 import { SkipButton } from './SkipButton';
+import { MusicInfo } from './MusicInfo';
 import { NavigationButtons } from './NavigationButtons';
+import { EnhancementPanel } from './EnhancementPanel';
+import { LiveBadge } from './LiveBadge';
+import { ViewerCount } from './ViewerCount';
 import { useVideoData } from '../hooks/useVideoData';
 import { useParentMessages, postToParent } from '../hooks/useParentMessages';
+import { useVideoEnhancement } from '../hooks/useVideoEnhancement';
+import { useLiveMode } from '../hooks/useLiveMode';
 import type { Video, SkipMeta } from '../types';
 import { useColorExtraction } from '../hooks/useColorExtraction';
 import './EmbedPlayer.css';
@@ -49,7 +55,13 @@ export function EmbedPlayer() {
   const pendingVideoChange = useRef(false);
 
   const { data, meta, loading, offlineNav, fetchVideo, setPrefetchedData } = useVideoData(id, vid);
+  const { liveState, setLiveMode, liveSeek, updateViewerCount, endLiveMode } = useLiveMode(playerRef);
   const canvasRef = useColorExtraction();
+  const enhancementContainerRef = useRef<HTMLDivElement>(null);
+  const {
+    preset, setPreset, filters, setFilters,
+    isActive, stats, panelOpen, setPanelOpen,
+  } = useVideoEnhancement(enhancementContainerRef);
 
   // changeVideo: reset time to 0 first, then fetch new video
   const changeVideo = useCallback(
@@ -136,7 +148,9 @@ export function EmbedPlayer() {
   }, [setPrefetchedData]);
 
   // Parent message handler
-  const { navInfo } = useParentMessages(playerRef, changeSub, changeVideo, onInitVideoData);
+  const { navInfo } = useParentMessages(playerRef, changeSub, changeVideo, onInitVideoData, {
+    setLiveMode, liveSeek, updateViewerCount, endLiveMode,
+  });
 
   // Report caption changes to parent (when user manually changes subtitles in player UI)
   // This triggers animecix.tv to persist the preference to SQLite via IPC
@@ -316,6 +330,7 @@ export function EmbedPlayer() {
           postToParent(isFullscreen ? 'enterFullscreen' : 'exitFullscreen');
         }}
         style={{ height: '100vh' }}
+        className={`${isActive ? 'enhancement-active' : ''} ${liveState.enabled ? 'live-mode' : ''}`}
       >
         <MediaProvider>
           {tracks.map((track, i) => (
@@ -330,6 +345,13 @@ export function EmbedPlayer() {
             />
           ))}
         </MediaProvider>
+
+        <div
+          ref={enhancementContainerRef}
+          className="enhancement-container"
+          style={{ display: isActive ? 'block' : 'none' }}
+        />
+
         <DefaultVideoLayout
           icons={defaultLayoutIcons}
           translations={turkishTranslations}
@@ -337,12 +359,24 @@ export function EmbedPlayer() {
           playbackRates={[0.5, 1, 1.25, 1.5, 1.75, 2, 2.5, 3, 3.5, 4]}
         />
         <SkipButton meta={meta} />
+        <MusicInfo meta={meta} />
         {navInfo && (
           <NavigationButtons
             hasNext={navInfo.hasNext}
             hasPrev={navInfo.hasPrev}
           />
         )}
+        {/* TODO: supported && koşulunu geri ekle */}
+        <EnhancementPanel
+            preset={preset}
+            onPresetChange={setPreset}
+            filters={filters}
+            onFiltersChange={setFilters}
+            stats={stats}
+            isActive={isActive}
+            panelOpen={panelOpen}
+            onPanelToggle={() => setPanelOpen(!panelOpen)}
+          />
       </MediaPlayer>
 
       <canvas

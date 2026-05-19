@@ -12,8 +12,21 @@ export interface Video {
   translator: string;
 }
 
+export interface MusicData {
+  title: string;
+  artist: string;
+  album?: string;
+  spotify_url?: string;
+  apple_music_url?: string;
+  cover_art?: string;
+}
+
 export interface SkipMeta {
-  [key: string]: { from: number; to: number };
+  intro?: { from: number; to: number; count?: number };
+  outro?: { from: number; to: number; count?: number };
+  music?: MusicData;
+  outro_music?: MusicData;
+  [key: string]: { from: number; to: number; count?: number } | MusicData | undefined;
 }
 
 // Dual source interface for Phase 3 offline readiness (per D-06)

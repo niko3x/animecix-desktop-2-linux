@@ -16,6 +16,7 @@ env:
   VITE_CDN_DOMAIN: ${{ secrets.VITE_CDN_DOMAIN }}
   VITE_SITE_URL: ${{ secrets.VITE_SITE_URL }}
   VITE_DISCORD_CLIENT_ID: ${{ secrets.VITE_DISCORD_CLIENT_ID }}
+  VITE_PLAYER_SECRET: ${{ secrets.VITE_PLAYER_SECRET }}
 
 jobs:
   # Stage 1: idempotently create the draft release so both matrix legs can
@@ -54,6 +55,8 @@ jobs:
             platform: darwin
           - os: windows-latest
             platform: win32
+          - os: ubuntu-latest
+            platform: linux
     runs-on: ${{ matrix.os }}
     timeout-minutes: 60
 
@@ -114,6 +117,18 @@ jobs:
         run: npx @electron/rebuild -f -w better-sqlite3
 
       # Build React pages into assets/. Forge extraResource references these.
+      # Vite reads VITE_* vars from .env (not process.env), so we write one.
+      - name: Write .env for Vite builds
+        shell: bash
+        run: |
+          cat <<EOF > .env
+          VITE_API_BASE_URL=${{ secrets.VITE_API_BASE_URL }}
+          VITE_CDN_DOMAIN=${{ secrets.VITE_CDN_DOMAIN }}
+          VITE_SITE_URL=${{ secrets.VITE_SITE_URL }}
+          VITE_DISCORD_CLIENT_ID=${{ secrets.VITE_DISCORD_CLIENT_ID }}
+          VITE_PLAYER_SECRET=${{ secrets.VITE_PLAYER_SECRET }}
+          EOF
+
       - name: Build player page
         run: npm run build:player
 
@@ -132,6 +147,10 @@ jobs:
       - name: Make Windows (x64 squirrel)
         if: matrix.os == 'windows-latest'
         run: npx electron-forge make --arch=x64 --platform=win32
+
+      - name: Make Linux (x64 deb + rpm + AppImage)
+        if: matrix.os == 'ubuntu-latest'
+        run: npx electron-forge make --arch=x64 --platform=linux
 
       # -------- upload artifacts to draft release --------
       # Note on env: set GITHUB_TOKEN (not GH_TOKEN) so both gh CLI and
@@ -179,6 +198,19 @@ jobs:
             -exec gh release upload "$TAG" {} --clobber --repo "$GITHUB_REPOSITORY" \;
           echo "--- Generating and uploading latest.yml ---"
           node scripts/generate-update-manifest.mjs win32
+
+      - name: Upload Linux artifacts
+        if: matrix.os == 'ubuntu-latest'
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          echo "--- Artifacts in out/make ---"
+          find out/make -type f | sort
+          echo "--- Uploading deb + rpm + AppImage ---"
+          find out/make -type f \( -name '*.deb' -o -name '*.rpm' -o -name '*.AppImage' \) \
+            -exec gh release upload "$TAG" {} --clobber --repo "$GITHUB_REPOSITORY" \;
 
       # -------- cleanup (runs even on failure) --------
       # apple-actions/import-codesign-certs creates its own temp keychain and

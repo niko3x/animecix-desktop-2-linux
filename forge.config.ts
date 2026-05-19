@@ -2,6 +2,9 @@ import type { ForgeConfig } from '@electron-forge/shared-types';
 import { MakerSquirrel } from '@electron-forge/maker-squirrel';
 import { MakerZIP } from '@electron-forge/maker-zip';
 import { MakerDMG } from '@electron-forge/maker-dmg';
+import { MakerDeb } from '@electron-forge/maker-deb';
+import { MakerRpm } from '@electron-forge/maker-rpm';
+import { MakerAppImage } from '@reforged/maker-appimage';
 import { VitePlugin } from '@electron-forge/plugin-vite';
 import { FusesPlugin } from '@electron-forge/plugin-fuses';
 import { AutoUnpackNativesPlugin } from '@electron-forge/plugin-auto-unpack-natives';
@@ -19,6 +22,7 @@ const EXTERNAL_NATIVE_DEPS = ['better-sqlite3', 'bufferutil', 'utf-8-validate'];
 const config: ForgeConfig = {
   packagerConfig: {
     appBundleId: 'com.onmuapps.animecix',              // D-26
+    executableName: 'AnimeciX',                         // Linux makers need this to find the binary
     asar: true,
     icon: 'assets/icon',                                // Forge appends .icns/.ico per platform
     extraResource: ['assets/player', 'assets/library', 'resources/app-update.yml'],
@@ -97,6 +101,37 @@ const config: ForgeConfig = {
       icon: 'assets/icon.icns',
       name: 'AnimeciX',
     }, ['darwin']),                                     // D-04 — first-install UX
+    new MakerDeb({
+      options: {
+        name: 'animecix',
+        productName: 'AnimeciX',
+        bin: 'AnimeciX',
+        genericName: 'Anime Player',
+        description: 'AnimeciX desktop app — anime streaming, downloading, and offline playback',
+        categories: ['Video', 'AudioVideo'],
+        icon: 'assets/icon.png',
+        mimeType: ['x-scheme-handler/animecix'],
+      },
+    }),
+    new MakerRpm({
+      options: {
+        name: 'animecix',
+        productName: 'AnimeciX',
+        bin: 'AnimeciX',
+        genericName: 'Anime Player',
+        description: 'AnimeciX desktop app — anime streaming, downloading, and offline playback',
+        categories: ['Video', 'AudioVideo'],
+        icon: 'assets/icon.png',
+        mimeType: ['x-scheme-handler/animecix'],
+      },
+    }),
+    new MakerAppImage({
+      options: {
+        bin: 'AnimeciX',
+        icon: 'assets/icon.png',
+        categories: ['Video'],
+      },
+    }),
   ],
   publishers: [
     {

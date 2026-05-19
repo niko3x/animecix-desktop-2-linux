@@ -1,5 +1,12 @@
 import { ipcMain, net } from 'electron';
+import { createHmac } from 'node:crypto';
 import type { StorageService } from '../storage/StorageService';
+
+const PLAYER_SECRET = import.meta.env.VITE_PLAYER_SECRET || '';
+
+function signSlug(slug: string): string {
+  return createHmac('sha256', PLAYER_SECRET).update(slug).digest('hex');
+}
 
 /**
  * Register video data pre-fetch and subtitle preference IPC handlers.
@@ -22,7 +29,11 @@ export function registerPlayerIpc(storage: StorageService): void {
       if (video.title_id && video.season_number && video.episode_number) {
         const slug = video.title_id + '_' + video.season_number + '_' + video.episode_number + '_' + video.translator;
         try {
-          const metaRes = await net.fetch(import.meta.env.VITE_API_BASE_URL + '/api/most-sought/' + slug + '?tauId=' + video._id, { referrer });
+          const sig = signSlug(slug);
+          const metaRes = await net.fetch(
+            import.meta.env.VITE_API_BASE_URL + '/api/most-sought/' + slug + '?tauId=' + video._id,
+            { referrer, headers: { 'x-player-sig': sig } }
+          );
           meta = await metaRes.json();
         } catch {
           // Skip markers not available — non-fatal
